@@ -1,0 +1,153 @@
+package pkg
+
+import (
+	"bufio"
+	"fmt"
+	"os/exec"
+	"strings"
+)
+
+type Entry = map[string][]string
+type DMIMap = map[string]Entry
+
+type DMIDecoder struct {
+	installed  bool
+	cmdOutput  string
+	decodedMap DMIMap
+}
+
+// NewCheckerService creates new instance from the parser
+func NewDMIDecoder() DMIDecoder {
+	dmidecode := exec.Command("sudo", "dmidecode")
+	res, _ := dmidecode.Output()
+
+	if len(res) > 0 {
+		return DMIDecoder{
+			installed:  true,
+			cmdOutput:  string(res),
+			decodedMap: DMIMap{},
+		}
+	} else {
+		fmt.Println("dmidecode is not installed in your device")
+		return DMIDecoder{}
+	}
+}
+
+// Decodes the string output of dmidecode
+func (dmi *DMIDecoder) Decode() {
+
+	if !dmi.installed {
+		return
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(dmi.cmdOutput))
+	key := ""
+	val := []string{}
+	parent := ""
+
+	// skip first 4 lines
+	for i := 0; i < 4; i++ {
+		scanner.Scan()
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if line == "" {
+			continue
+		}
+
+		if strings.HasPrefix(line, "Handle") {
+			key = ""
+			val = []string{}
+			parent = ""
+			continue
+		}
+
+		if string(line[0]) != "\t" && string(line[1]) != "\t" {
+
+			parent = line
+			dmi.decodedMap[parent] = Entry{}
+
+		} else if string(line[0]) == "\t" && string(line[1]) != "\t" {
+
+			line = strings.TrimLeft(line, "\t")
+			keyVal := strings.Split(line, ": ")
+
+			if len(keyVal) == 2 {
+
+				key = keyVal[0]
+				val = []string{keyVal[1]}
+
+			} else {
+
+				key = strings.ReplaceAll(keyVal[0], ":", "")
+				val = []string{}
+
+				if key == "System Power Controls" {
+					parent = "System Power Controls"
+					dmi.decodedMap[parent] = Entry{}
+				}
+
+			}
+			dmi.decodedMap[parent][key] = val
+
+		} else {
+			line = strings.TrimLeft(line, "\t")
+
+			val = append(val, line)
+			dmi.decodedMap[parent][key] = val
+		}
+
+	}
+
+}
+
+// Get all possible keys of the decoded output
+func (dmi *DMIDecoder) GetSections() []string {
+
+	var sections []string
+
+	for parentKey := range dmi.decodedMap {
+		sections = append(sections, parentKey)
+	}
+
+	return sections
+}
+
+// GetSection returns a dictionary for the section given --> map[key1: val1 key2: val2 ....]
+func (dmi *DMIDecoder) GetSection(sectionKey string) (Entry, error) {
+
+	var section Entry
+
+	if section, exists := dmi.decodedMap[sectionKey]; exists {
+		return section, nil
+	}
+
+	return section, fmt.Errorf("the given section key %v does not exist", sectionKey)
+}
+
+// Get all possible options of a given key of the decoded output
+func (dmi *DMIDecoder) GetOptions(sectionKey string) []string {
+
+	section, _ := dmi.GetSection(sectionKey)
+	var options []string
+
+	for key := range section {
+		options = append(options, key)
+	}
+
+	return options
+}
+
+// get a value of a given section key
+func (dmi *DMIDecoder) Get(sectionKey string, optionKey string) ([]string, error) {
+
+	option := []string{}
+
+	if option, exists := dmi.decodedMap[sectionKey][optionKey]; exists {
+		return option, nil
+	}
+
+	return option, fmt.Errorf("option '%v' does not exist in the given key '%v'", optionKey, sectionKey)
+}
