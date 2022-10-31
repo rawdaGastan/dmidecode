@@ -146,10 +146,10 @@ func (dmi *DMIDecoder) Get(sectionKey string, optionKey string) (string, error) 
 	option := ""
 
 	if option, exists := dmi.decodedMap[sectionKey][optionKey]; exists {
-		if len(option) > 1 {
+		if len(option) == 1 {
 			return option[0], nil
 		} else {
-			return "", fmt.Errorf("option '%v' does exists as a list in the given key '%v'", optionKey, sectionKey)
+			return "", fmt.Errorf("option '%v' exists as a list in the given key '%v'. you can use GetList()", optionKey, sectionKey)
 		}
 	}
 

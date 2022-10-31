@@ -10,18 +10,18 @@ func main() {
 	dmiDecode := pkg.NewDMIDecoder()
 	dmiDecode.Decode()
 
-	fmt.Printf("dmiDecode.GetSections(): %v\n", dmiDecode.GetSections())
+	//fmt.Printf("dmiDecode.GetSections(): %v\n", dmiDecode.GetSections())
 
 	//fmt.Println(dmiDecode.GetSection("BIOS Information"))
 
 	//fmt.Printf("dmiDecode.GetOptions(\"BIOS Information\"): %v\n", dmiDecode.GetOptions("BIOS Information"))
 
-	op, err := dmiDecode.Get("BIOS Information", "Characteristics")
+	op, err := dmiDecode.GetList("BIOS Information", "Characteristics")
 
 	fmt.Printf("op: %v %v\n", op, err)
 
-	op, err = dmiDecode.Get("BIOS Information", "Vendor") // -> Dell Inc.
+	op2, err := dmiDecode.Get("BIOS Information", "Vendor") // -> Dell Inc.
 
-	fmt.Printf("op: %v %v\n", op, err)
+	fmt.Printf("op: %v %v\n", op2, err)
 
 }
