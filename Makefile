@@ -5,7 +5,7 @@ revision=$(shell git rev-parse HEAD)
 dirty=$(shell test -n "`git diff --shortstat 2> /dev/null | tail -n1`" && echo "*")
 ldflags='-w -s -X $(version).Branch=$(branch) -X $(version).Revision=$(revision) -X $(version).Dirty=$(dirty)'
 
-all: getdeps test build
+all: getdeps test
 
 getdeps:
 	@echo "Installing gocyclo" && go get  -u github.com/fzipp/gocyclo/cmd/gocyclo
@@ -41,14 +41,11 @@ staticcheck:
 	go run honnef.co/go/tools/cmd/staticcheck -- ./...
 
 
-test: verifiers build
+test: verifiers
 	go test -v -vet=off ./...
 
-testrace: verifiers build
+testrace: verifiers
 	go test -v -race -vet=off ./...
 
-build:
-	go build -o bin/urls-checker-cli main.go 
-
 clean:
-	rm ./bin/* -rf
+	rm ./pkg/data/* -rf

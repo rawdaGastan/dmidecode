@@ -1,61 +1,36 @@
-# URLs Checker
+# dmidecode
 
-## How to run CLI
+- A decoder for dmidecode output
 
-- Create a new config.toml file and insert your sites urls, for example:
-  
-```toml
-[sites]
-   [sites.threefold]
-     url = "threefold.io"
-   [sites.codescalers]
-     url = "codescalers.com"
+## How to use
+
+- Create a new dmidecode struct
+
+```go
+import "github.com/rawdaGastan/dmidecode/pkg"
+
+dmiDecode := pkg.NewDMIDecoder()
 ```
 
-- build CLI `task build.cli`
+- Then decode it
 
-- Run cmd `./bin/urls-checker-cli linkscheck --config=config.toml`
-
-## How to run the app
-
-### Run backend
-
-```sh
-task run.api
+```go
+dmiDecode.Decode()
 ```
 
-### Run frontend
+## Functions
 
-```sh
-cd fronend
-npm install
-npm run serve
-```
-
-## Run with docker
-
-```sh
-docker-compose up
-```
-
-## Run with helm
-
-```sh
-helm install urlschecker --debug ./chart 
-
-export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}");
-export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services vue-serv);
-echo http://$NODE_IP:$NODE_PORT
-
-export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}");
-export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services server-serv);
-echo http://$NODE_IP:$NODE_PORT
-```
+- `parser.Decode()` &rarr; to get your decoded map
+- `parser.GetSections()` &rarr; to get your sections' names
+- `parser.GetSection( sectionKey )` &rarr; to get the content of the specified section key
+- `parser.GetOptions( sectionKey )` &rarr; to get the options of the specified section key
+- `parser.Get( sectionKey, optionKey )` &rarr; to get the string value of an option key inside a section
+- `parser.GetList( sectionKey, optionKey )` &rarr; to get the list value of an option key inside a section
 
 ## Testing
 
 Use this command to run the tests
 
 ```bash
-task test
+go test -v ./...
 ```

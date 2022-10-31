@@ -140,8 +140,24 @@ func (dmi *DMIDecoder) GetOptions(sectionKey string) []string {
 	return options
 }
 
-// get a value of a given section key
-func (dmi *DMIDecoder) Get(sectionKey string, optionKey string) ([]string, error) {
+// Get a string value of a given section key
+func (dmi *DMIDecoder) Get(sectionKey string, optionKey string) (string, error) {
+
+	option := ""
+
+	if option, exists := dmi.decodedMap[sectionKey][optionKey]; exists {
+		if len(option) > 1 {
+			return option[0], nil
+		} else {
+			return "", fmt.Errorf("option '%v' does exists as a list in the given key '%v'", optionKey, sectionKey)
+		}
+	}
+
+	return option, fmt.Errorf("option '%v' does not exist in the given key '%v'", optionKey, sectionKey)
+}
+
+// Get a list value of a given section key
+func (dmi *DMIDecoder) GetList(sectionKey string, optionKey string) ([]string, error) {
 
 	option := []string{}
 
