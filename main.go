@@ -8,7 +8,11 @@ import (
 
 func main() {
 	dmiDecode := pkg.NewDMIDecoder()
-	dmiDecode.Decode()
+	out, err := dmiDecode.GetDMIDecodeOutput()
+	fmt.Printf("err: %v\n", err)
+
+	err = dmiDecode.Decode(out)
+	fmt.Printf("err: %v\n", err)
 
 	//fmt.Printf("dmiDecode.GetSections(): %v\n", dmiDecode.GetSections())
 

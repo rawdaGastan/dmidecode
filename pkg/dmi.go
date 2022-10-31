@@ -11,39 +11,43 @@ type Entry = map[string][]string
 type DMIMap = map[string]Entry
 
 type DMIDecoder struct {
-	installed  bool
-	cmdOutput  string
 	decodedMap DMIMap
 }
 
 // NewCheckerService creates new instance from the parser
 func NewDMIDecoder() DMIDecoder {
-	dmidecode := exec.Command("sudo", "dmidecode")
-	res, _ := dmidecode.Output()
-
-	if len(res) > 0 {
-		return DMIDecoder{
-			installed:  true,
-			cmdOutput:  string(res),
-			decodedMap: DMIMap{},
-		}
-	} else {
-		fmt.Println("dmidecode is not installed in your device")
-		return DMIDecoder{}
+	return DMIDecoder{
+		decodedMap: DMIMap{},
 	}
 }
 
-// Decodes the string output of dmidecode
-func (dmi *DMIDecoder) Decode() {
+func (dmi *DMIDecoder) GetDMIDecodeOutput() (string, error) {
+	dmidecode := exec.Command("sudo", "dmidecode")
+	out, err := dmidecode.Output()
 
-	if !dmi.installed {
-		return
+	if err != nil {
+		return "", err
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(dmi.cmdOutput))
+	if len(out) == 0 {
+		return "", fmt.Errorf("dmidecode is not installed in your device")
+	}
+
+	return string(out), nil
+}
+
+// Decodes the string output of dmidecode
+func (dmi *DMIDecoder) Decode(output string) error {
+
+	if output == "" {
+		return fmt.Errorf("the given data is empty")
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(output))
 	key := ""
 	val := []string{}
 	parent := ""
+	isParent := false
 
 	// skip first 4 lines
 	for i := 0; i < 4; i++ {
@@ -61,11 +65,18 @@ func (dmi *DMIDecoder) Decode() {
 			key = ""
 			val = []string{}
 			parent = ""
+			isParent = true
 			continue
 		}
 
 		if string(line[0]) != "\t" && string(line[1]) != "\t" {
 
+			parent = line
+			dmi.decodedMap[parent] = Entry{}
+
+		} else if isParent {
+
+			line = strings.TrimLeft(line, "\t")
 			parent = line
 			dmi.decodedMap[parent] = Entry{}
 
@@ -84,11 +95,6 @@ func (dmi *DMIDecoder) Decode() {
 				key = strings.ReplaceAll(keyVal[0], ":", "")
 				val = []string{}
 
-				if key == "System Power Controls" {
-					parent = "System Power Controls"
-					dmi.decodedMap[parent] = Entry{}
-				}
-
 			}
 			dmi.decodedMap[parent][key] = val
 
@@ -99,7 +105,11 @@ func (dmi *DMIDecoder) Decode() {
 			dmi.decodedMap[parent][key] = val
 		}
 
+		isParent = false
+
 	}
+
+	return nil
 
 }
 
