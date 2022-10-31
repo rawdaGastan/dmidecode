@@ -49,7 +49,11 @@ func TestDMIFunctions(t *testing.T) {
 	t.Run("test_sections", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		sections := dmi.GetSections()
 
@@ -60,7 +64,11 @@ func TestDMIFunctions(t *testing.T) {
 
 	t.Run("test_empty_sections", func(t *testing.T) {
 		dmi := NewDMIDecoder()
-		dmi.Decode("empty")
+		err := dmi.Decode("empty")
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		sections := dmi.GetSections()
 
@@ -72,7 +80,11 @@ func TestDMIFunctions(t *testing.T) {
 	t.Run("test_options", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		options := dmi.GetOptions("BIOS Information")
 
@@ -84,7 +96,11 @@ func TestDMIFunctions(t *testing.T) {
 	t.Run("test_empty_options", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		options := dmi.GetOptions("Information")
 
@@ -96,7 +112,11 @@ func TestDMIFunctions(t *testing.T) {
 	t.Run("test_section", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		section, _ := dmi.GetSection("BIOS Information")
 
@@ -108,7 +128,11 @@ func TestDMIFunctions(t *testing.T) {
 	t.Run("test_wrong_section", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		errDecode := dmi.Decode(out)
+
+		if errDecode != nil {
+			t.Errorf("unexpected error: %v", errDecode)
+		}
 
 		_, err := dmi.GetSection("BIOSS Information")
 
@@ -124,7 +148,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_get_value", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		value, _ := dmi.Get("BIOS Information", "Vendor")
 
@@ -136,7 +164,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_get_list_value", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		errDecode := dmi.Decode(out)
+
+		if errDecode != nil {
+			t.Errorf("unexpected error: %v", errDecode)
+		}
 
 		_, err := dmi.Get("BIOS Information", "Characteristics")
 
@@ -148,7 +180,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_get_string_value", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		errDecode := dmi.Decode(out)
+
+		if errDecode != nil {
+			t.Errorf("unexpected error: %v", errDecode)
+		}
 
 		_, err := dmi.Get("BIOS Information", "Vendor")
 
@@ -160,7 +196,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_get_wrong_key", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		errDecode := dmi.Decode(out)
+
+		if errDecode != nil {
+			t.Errorf("unexpected error: %v", errDecode)
+		}
 
 		_, err := dmi.Get("BIOS Information", " Vendor")
 
@@ -172,7 +212,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_list_multi_value", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		value, _ := dmi.GetList("BIOS Information", "Characteristics")
 
@@ -184,7 +228,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_list_single_value", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		err := dmi.Decode(out)
+
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
 
 		value, _ := dmi.GetList("BIOS Information", "Vendor")
 
@@ -196,7 +244,11 @@ func TestDMIGetters(t *testing.T) {
 	t.Run("test_list_wrong_key", func(t *testing.T) {
 		dmi := NewDMIDecoder()
 		out, _ := dmi.GetDMIDecodeOutput()
-		dmi.Decode(out)
+		errDecode := dmi.Decode(out)
+
+		if errDecode != nil {
+			t.Errorf("unexpected error: %v", errDecode)
+		}
 
 		_, err := dmi.GetList("BIOS Information", " Vendor")
 
