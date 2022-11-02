@@ -12,10 +12,16 @@ import "github.com/rawdaGastan/dmidecode/pkg"
 dmiDecode := pkg.NewDMIDecoder()
 ```
 
+- get the dmidecode output
+
+```go
+output, _ := dmi.GetDMIDecodeOutput()
+```
+
 - Then decode it
 
 ```go
-dmiDecode.Decode()
+dmiDecode.Decode(output)
 ```
 
 ## Functions
