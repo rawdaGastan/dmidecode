@@ -9,7 +9,7 @@
 ```go
 import "github.com/rawdaGastan/dmidecode/pkg"
 
-dmiDecode := pkg.NewDMIDecoder()
+dmi := pkg.NewDMIDecoder()
 ```
 
 - get the dmidecode output
@@ -21,7 +21,7 @@ output, _ := dmi.GetDMIDecodeOutput()
 - Then decode it
 
 ```go
-dmiDecode.Decode(output)
+dmi.Decode(output)
 ```
 
 ## Functions
