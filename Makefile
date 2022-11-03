@@ -40,12 +40,19 @@ spelling:
 staticcheck:
 	go run honnef.co/go/tools/cmd/staticcheck -- ./...
 
-
 test: verifiers
 	go test -v -vet=off ./...
+
+benchmarks: 
+	go test -v -vet=off ./... -bench=. -count 1 -benchtime=10s -benchmem -run=^#
+
+coverage: clean 
+	mkdir coverage
+	go test -v -vet=off ./... -coverprofile=coverage/coverage.out
+	go tool cover -html=coverage/coverage.out -o coverage/coverage.html
 
 testrace: verifiers
 	go test -v -race -vet=off ./...
 
 clean:
-	rm ./pkg/data/* -rf
+	rm ./coverage -rf

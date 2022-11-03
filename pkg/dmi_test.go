@@ -4,6 +4,54 @@ import (
 	"testing"
 )
 
+func BenchmarkTestDMIDecode(b *testing.B) {
+
+	b.Run("installed", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			dmi := NewDMIDecoder()
+			_, err := dmi.GetDMIDecodeOutput()
+
+			if err != nil {
+				b.Errorf("dmidecode should be installed")
+			}
+		}
+	})
+
+	b.Run("valid_output", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			dmi := NewDMIDecoder()
+			out, _ := dmi.GetDMIDecodeOutput()
+
+			if out == "" {
+				b.Errorf("dmidecode output should be returned")
+			}
+		}
+	})
+
+	b.Run("valid_decoding", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			dmi := NewDMIDecoder()
+			out, _ := dmi.GetDMIDecodeOutput()
+			err := dmi.Decode(out)
+
+			if err != nil {
+				b.Errorf("the given data is valid")
+			}
+		}
+	})
+
+	b.Run("invalid_decoding", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			dmi := NewDMIDecoder()
+			err := dmi.Decode("")
+
+			if err == nil {
+				b.Errorf("the given data is invalid")
+			}
+		}
+	})
+}
+
 func TestDMIDecode(t *testing.T) {
 
 	t.Run("installed", func(t *testing.T) {

@@ -5,6 +5,19 @@ tasks:
         desc: Test the app
         cmds:
         - go test -v -vet=off ./...
+    
+    benchmarks:
+        desc: Test the app benchmarks
+        cmds:
+        - go test -v -vet=off ./... -bench=. -count 1 -benchtime=10s -benchmem -run=^#
+    
+    coverage:
+        desc: Test the app coverages
+        cmds:
+        - rm ./coverage -rf
+        - mkdir coverage
+        - go test -v -vet=off ./... -coverprofile=coverage/coverage.out
+        - go tool cover -html=coverage/coverage.out -o coverage/coverage.html
 
     deps:
         desc: install deps
@@ -25,6 +38,6 @@ tasks:
         - go run honnef.co/go/tools/cmd/staticcheck -- ./...
   
     clean:
-        desc: Remove all bin data files
+        desc: Remove all coverage files
         cmds:
-        - rm ./pkg/data/* -rf
+        - rm ./coverage -rf
