@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>pkg: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/rawdaGastan/dmidecode/pkg/dmi.go (97.2%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package pkg
+
+import (
+        "bufio"
+        "fmt"
+        "os/exec"
+        "strings"
+)
+
+type Entry = map[string][]string
+type DMIMap = map[string]Entry
+
+type DMIDecoder struct {
+        decodedMap DMIMap
+}
+
+// NewCheckerService creates new instance from the parser
+func NewDMIDecoder() DMIDecoder <span class="cov8" title="1">{
+        return DMIDecoder{
+                decodedMap: DMIMap{},
+        }
+}</span>
+
+func (dmi *DMIDecoder) GetDMIDecodeOutput() (string, error) <span class="cov8" title="1">{
+        dmidecode := exec.Command("sudo", "dmidecode")
+        out, err := dmidecode.Output()
+
+        if err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+
+        <span class="cov8" title="1">if len(out) == 0 </span><span class="cov0" title="0">{
+                return "", fmt.Errorf("dmidecode is not installed in your device")
+        }</span>
+
+        <span class="cov8" title="1">return string(out), nil</span>
+}
+
+// Decodes the string output of dmidecode
+func (dmi *DMIDecoder) Decode(output string) error <span class="cov8" title="1">{
+
+        if output == "" </span><span class="cov8" title="1">{
+                return fmt.Errorf("the given data is empty")
+        }</span>
+
+        <span class="cov8" title="1">scanner := bufio.NewScanner(strings.NewReader(output))
+        key := ""
+        val := []string{}
+        parent := ""
+        isParent := false
+
+        // skip first 4 lines
+        for i := 0; i &lt; 4; i++ </span><span class="cov8" title="1">{
+                scanner.Scan()
+        }</span>
+
+        <span class="cov8" title="1">for scanner.Scan() </span><span class="cov8" title="1">{
+                line := scanner.Text()
+
+                if line == "" </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">if strings.HasPrefix(line, "Handle") </span><span class="cov8" title="1">{
+                        key = ""
+                        val = []string{}
+                        parent = ""
+                        isParent = true
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">if string(line[0]) != "\t" &amp;&amp; string(line[1]) != "\t" </span><span class="cov8" title="1">{
+
+                        parent = line
+                        dmi.decodedMap[parent] = Entry{}
+
+                }</span> else<span class="cov8" title="1"> if isParent </span><span class="cov8" title="1">{
+
+                        line = strings.TrimLeft(line, "\t")
+                        parent = line
+                        dmi.decodedMap[parent] = Entry{}
+
+                }</span> else<span class="cov8" title="1"> if string(line[0]) == "\t" &amp;&amp; string(line[1]) != "\t" </span><span class="cov8" title="1">{
+
+                        line = strings.TrimLeft(line, "\t")
+                        keyVal := strings.Split(line, ": ")
+
+                        if len(keyVal) == 2 </span><span class="cov8" title="1">{
+
+                                key = keyVal[0]
+                                val = []string{keyVal[1]}
+
+                        }</span> else<span class="cov8" title="1"> {
+
+                                key = strings.ReplaceAll(keyVal[0], ":", "")
+                                val = []string{}
+
+                        }</span>
+                        <span class="cov8" title="1">dmi.decodedMap[parent][key] = val</span>
+
+                } else<span class="cov8" title="1"> {
+                        line = strings.TrimLeft(line, "\t")
+
+                        val = append(val, line)
+                        dmi.decodedMap[parent][key] = val
+                }</span>
+
+                <span class="cov8" title="1">isParent = false</span>
+
+        }
+
+        <span class="cov8" title="1">return nil</span>
+
+}
+
+// Get all possible keys of the decoded output
+func (dmi *DMIDecoder) GetSections() []string <span class="cov8" title="1">{
+
+        var sections []string
+
+        for parentKey := range dmi.decodedMap </span><span class="cov8" title="1">{
+                sections = append(sections, parentKey)
+        }</span>
+
+        <span class="cov8" title="1">return sections</span>
+}
+
+// GetSection returns a dictionary for the section given --&gt; map[key1: val1 key2: val2 ....]
+func (dmi *DMIDecoder) GetSection(sectionKey string) (Entry, error) <span class="cov8" title="1">{
+
+        var section Entry
+
+        if section, exists := dmi.decodedMap[sectionKey]; exists </span><span class="cov8" title="1">{
+                return section, nil
+        }</span>
+
+        <span class="cov8" title="1">return section, fmt.Errorf("the given section key %v does not exist", sectionKey)</span>
+}
+
+// Get all possible options of a given key of the decoded output
+func (dmi *DMIDecoder) GetOptions(sectionKey string) []string <span class="cov8" title="1">{
+
+        section, _ := dmi.GetSection(sectionKey)
+        var options []string
+
+        for key := range section </span><span class="cov8" title="1">{
+                options = append(options, key)
+        }</span>
+
+        <span class="cov8" title="1">return options</span>
+}
+
+// Get a string value of a given section key
+func (dmi *DMIDecoder) Get(sectionKey string, optionKey string) (string, error) <span class="cov8" title="1">{
+
+        option := ""
+
+        if option, exists := dmi.decodedMap[sectionKey][optionKey]; exists </span><span class="cov8" title="1">{
+                if len(option) == 1 </span><span class="cov8" title="1">{
+                        return option[0], nil
+                }</span> else<span class="cov8" title="1"> {
+                        return "", fmt.Errorf("option '%v' exists as a list in the given key '%v'. you can use GetList()", optionKey, sectionKey)
+                }</span>
+        }
+
+        <span class="cov8" title="1">return option, fmt.Errorf("option '%v' does not exist in the given key '%v'", optionKey, sectionKey)</span>
+}
+
+// Get a list value of a given section key
+func (dmi *DMIDecoder) GetList(sectionKey string, optionKey string) ([]string, error) <span class="cov8" title="1">{
+
+        option := []string{}
+
+        if option, exists := dmi.decodedMap[sectionKey][optionKey]; exists </span><span class="cov8" title="1">{
+                return option, nil
+        }</span>
+
+        <span class="cov8" title="1">return option, fmt.Errorf("option '%v' does not exist in the given key '%v'", optionKey, sectionKey)</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
